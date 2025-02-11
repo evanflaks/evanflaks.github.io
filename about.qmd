@@ -1,6 +1,6 @@
 ---
 title: "About"
-image: profile.jpg
+image: headshot.jpeg
 about:
   template: jolla
   links:
@@ -16,4 +16,4 @@ about:
 
 ---
 
-About this blog
+I am Evan Flaks and this is my Machine Learning blog.
