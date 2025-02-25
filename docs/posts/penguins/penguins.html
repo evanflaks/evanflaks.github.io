@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2024-02-18">
 <meta name="description" content="Machine Learning model to predict penguin species">
 
-<title>Palmer Penguins Classification – My Awesome CSCI 0451 Blog</title>
+<title>Palmer Penguins Classification – Evan Flaks’ Machine Learning Blog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -134,7 +134,7 @@ background-size: cover;
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
-    <span class="navbar-title">My Awesome CSCI 0451 Blog</span>
+    <span class="navbar-title">Evan Flaks’ Machine Learning Blog</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -215,14 +215,14 @@ background-size: cover;
 </section>
 <section id="data-preparation" class="level1">
 <h1>Data Preparation</h1>
-<p>First we must access and read the data from the source.</p>
+<p>First I must access and read the data from the source.</p>
 <div id="cell-3" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>train_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/palmer-penguins/train.csv"</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> pd.read_csv(train_url)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now, I must prepare the dataset for machine learning by encoding the target variable (Species) into numerical values, dropping unnecessary columns, removing missing values and invalid entries, converting categorical columns into numerical representations via one-hot encoding, and splitting up training and testing sets</p>
+<p>Now, I must prepare the dataset for machine learning by encoding the target variable (Species) into numerical values, dropping unnecessary columns, removing missing values and invalid entries, converting categorical columns into numerical representations via one-hot encoding, and splitting up training and testing sets.</p>
 <div id="cell-5" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
@@ -267,7 +267,7 @@ Test Set Size: 52</code></pre>
 </section>
 <section id="visualizations" class="level1">
 <h1>Visualizations</h1>
-<p>Now, to visualize the dataset, I have created a scatter plot that plots flipper length vs.&nbsp;body mass of the three species and a bar chart showing the distribution of Penguins found on the three different islands. Finally, I created a summary table that shows each species’ average Culmen Length and Culmen Depth</p>
+<p>Now, to visualize the dataset, I have created a scatter plot that plots flipper length vs.&nbsp;body mass of the three species and a bar chart showing the distribution of Penguins found on the three different islands. Finally, I created a summary table that shows each species’ average Culmen Length and Culmen Depth.</p>
 <div id="cell-7" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -289,7 +289,7 @@ Test Set Size: 52</code></pre>
 </div>
 </div>
 </div>
-<p>Here, we can see that the Adelie and Chinstrap penguins have pretty similar flipper lenght and body mass while the Gentoo penguins are much larger in both of those metrics.</p>
+<p>Above, I have created a scatter plot that plots the flipper length and body mass of each penguin observed in the training set. I created a key with different symbols to plot each species so I could visualize the physical differences between each species. This visualization gave me valuable insight, informing me that Gentoo penguins are much larger in terms of body mass and flipper length than both Adelie and Chinstrap penguins. Adelie and Chinstrap penguins, as represented by the blue circles and green squares, share very similar sizes in these metrics. From this, we can conclude that body mass and flipper length would be excellent features with which to train our model in order to distinguish between Gentoo or not-gentoo, but these features would not help our model distinguish between Adelie and Chinstrap.</p>
 <div id="cell-9" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -312,7 +312,7 @@ Test Set Size: 52</code></pre>
 </div>
 </div>
 </div>
-<p>Here, we can see that Gentoo penguins are only found on Biscoe Island and Chinstrap penguins are only found on Dream Island. Adelie penguins are found on all three islands.</p>
+<p>For this visualization, I created a bar chart to see the island where each observed penguin was found. Here, we can see that Gentoo penguins are only found on Biscoe Island and Chinstrap penguins are only found on Dream Island. Adelie penguins, on the other hand, are found on all three islands. This bar chart tells me that Island location could help train my model to distinguish between Adelie and Chinstrap because Chinstrap penguins seem to only be found on Dream Island. So, if we see a penguin with quantitaive measurables that could fall under Adelie or Chinstrap, but the penguin was found on Torgersen Island, the model would correctly predict that the penguin is Adelie. This is especially helpful considering the quantitative features observed in my first visualization had a lot of overlap between Adelie and Chinstrap.</p>
 <div id="cell-11" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -336,12 +336,16 @@ Chinstrap penguin (Pygoscelis antarctica)          18.406667
 Gentoo penguin (Pygoscelis papua)                  14.957534  </code></pre>
 </div>
 </div>
-<p>From this table we can see that Adelie penguins typically have a smaller culmen length than Gentoo and Chinstrap penguins and Gentoo penguins typically have a smaller culmen depth than the other two.</p>
+<p>Here, I created a table to see the average culmen length and culmen depth of each penguin species from the data set. From this, we can see that culmen length would be a great feature to distinguish Adelie penguins from the other two species because they have considerably shorter culmens. However, culmen length would not be very helpful in distinguishing Gentoo from Chinstrap because they have very similar measurements. As for culmen depth, we see that Adelie and Chinstrap have very similar average measurements while Gentoo penguins have considerably smaller culmen depths. This means culmen depth would be a good feature for my model to distinguish Gentoo penguins from the other two species.</p>
+</section>
+<section id="data-visualization-conclusions" class="level1">
+<h1>Data Visualization Conclusions</h1>
+<p>After creating three data visualizations, I have intuition for some of the features that would help train a successful model. From my scatter plot, I saw that body mass and flipper length would both be great features to help my model distinguish between Gentoo and Adelie or Chinstrap, but would not be very helpful in distinguishing Adelie from Chinstrap. Then, from the summary table, we could see that Adelie penguins, on average, have around a 20% shorter culmen length than Chinstrap penguins, so that would be a great feature to help my model distinguish between those two species. Finally, since Chinstrap penguins were only found on Dream Island and Gentoo Penguins were only found on Biscoe Island as represented by my bar chart, I figured this would be a nice qualitative feature with which to train my model.</p>
 </section>
 <section id="feature-selection" class="level1">
 <h1>Feature Selection</h1>
-<p>Now we must choose which three features we want to use to predict the penguin species. To do this, I used a Random Forest Classifier by measuring how much each feature contributes to making accurate predictions. When splitting a node in a decision tree, features that provide better separation between classes are preferred. The model tracks how often a feature is used in important splits and how much it improves classification accuracy. The importance of each feature is calculated as the total reduction in prediction error (impurity) it provides across all trees. Features with higher scores contribute more to the model’s decision-making.</p>
-<div id="cell-14" class="cell" data-execution_count="17">
+<p>Now we must choose which three features we want to use to predict the penguin species. I gained some valuable insight from my visualizations but now want to use a systematic approach to select the three best features. To do this, I used a Random Forest Classifier by measuring how much each feature contributes to making accurate predictions. When splitting a node in a decision tree, features that provide better separation between classes are preferred. The model tracks how often a feature is used in important splits and how much it improves classification accuracy. The importance of each feature is calculated as the total reduction in prediction error (impurity) it provides across all trees. Features with higher scores contribute more to the model’s decision-making.</p>
+<div id="cell-15" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_selection <span class="im">import</span> RFECV</span>
@@ -383,7 +387,7 @@ Gentoo penguin (Pygoscelis papua)                  14.957534  </code></pre>
 <section id="logistic-regression-model-testing" class="level1">
 <h1>Logistic Regression Model Testing</h1>
 <p>The model below uses logistic regression to classify data based on flipper length, culmen length, and island. First, it standardizes the numerical features using StandardScaler() to ensure consistent scaling. Then, it trains a logistic regression model with increased iterations (1000) to ensure convergence. Finally, it evaluates performance using training and test accuracy, helping assess how well the model generalizes.</p>
-<div id="cell-17" class="cell" data-execution_count="20">
+<div id="cell-18" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -413,7 +417,7 @@ Test Accuracy: 1.0</code></pre>
 </section>
 <section id="plotting-decision-regions" class="level1">
 <h1>Plotting Decision Regions</h1>
-<div id="cell-19" class="cell" data-execution_count="19">
+<div id="cell-20" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> ListedColormap</span>
@@ -494,10 +498,15 @@ Test Accuracy: 1.0</code></pre>
 </div>
 </div>
 </div>
+<p>Above, I have plotted my model’s decision regions on both the training and test sets, showing the thresholds of prediction for each species split up by each island.</p>
+<p>For both the training and test set of penguins on Torgersen Island, my model predicted with 100% success as there were no other penguin found on this island besides Adelies.</p>
+<p>Dream Island contained both Adelie and Chinstrap penguins, which both have very similar flipper length, so the decision regions for that island are based almost entirely by culmen length, as can be seen by the near-horizontal divide between the green and blue regions. My model did have some error on the training set for Dream Island as there were some outliers of the decision regions – Chinstraps with below average culmen lengths and Adelies with above average culmen lengths. The test set did not have as many outliers and therefore still predicted with 100% accuracy on Dream Island.</p>
+<p>As for Biscoe Island, there were both Gentoo and Adelie penguins. As observed in my data visualizations, Gentoo penguins are considerably larger than Adelie in both flipper length and culmen length so the regions are divided diagonally. There were no overlaps in the decision regions on Biscoe in either the test or training set.</p>
+<p>It is interesting to me that even though no Gentoo or Chinstrap penguins were found on Torgersen in the entire data set, there are still orange and green regions. Similarly, no Gentoos are found on Dream or Torgerson, but my model still has an orange decision region for both of those islands. This makes sense to me because, for instance, if the model found a penguin with a 230 mm flipper length and 60 mm culmen depth on Torgersen, it would be a reasonable prediction for that penguin to be a Gentoo, even if there are no other Gentoos on the island.</p>
 </section>
 <section id="confusion-matrix" class="level1">
 <h1>Confusion Matrix</h1>
-<div id="cell-21" class="cell" data-execution_count="9">
+<div id="cell-23" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>y_test_pred <span class="op">=</span> LR.predict(X_test_scaled)</span>
@@ -509,6 +518,7 @@ Test Accuracy: 1.0</code></pre>
        [ 0,  0, 19]])</code></pre>
 </div>
 </div>
+<p>Above is my models confusion matrix for the test set. The rows represent the actual species of a penguin while the columns represent the predicted species. As we can see, my model predicted all 22 Adelies to be Adelie, all 11 Chinstraps to be Chinstraps, and all 19 Gentoos to be gentoos. Therefore, my model correctly predicted the species of all 52 penguins in the test set with no errors.</p>
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
