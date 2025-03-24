@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/perceptron/index.html",
       "/posts/bias/bias.html",
       "/posts/loans/credit-risk.html",
       "/posts/penguins/penguins.html"
