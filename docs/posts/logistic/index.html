@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evan Flaks">
 <meta name="dcterms.date" content="2025-04-08">
-<meta name="description" content="Implementing Logistic Regression and Performing Various Data Experiments">
+<meta name="description" content="Implementing Gradient Descent for Logistic Regression and Performing Data Experiments with Varying Momentum">
 
 <title>Implementing Logistic Regression – Evan Flaks’ Machine Learning Blog</title>
 <style>
@@ -203,7 +203,7 @@ window.Quarto = {
       <h1 class="title">Implementing Logistic Regression</h1>
                   <div>
         <div class="description">
-          Implementing Logistic Regression and Performing Various Data Experiments
+          Implementing Gradient Descent for Logistic Regression and Performing Data Experiments with Varying Momentum
         </div>
       </div>
                 </div>
@@ -243,7 +243,7 @@ window.Quarto = {
 
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
-<div id="cell-2" class="cell" data-execution_count="1">
+<div id="cell-2" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -254,7 +254,7 @@ window.Quarto = {
 </section>
 <section id="part-a-implementing-logistic-regression" class="level1">
 <h1>Part A: Implementing Logistic Regression</h1>
-<p>In my <a href="logistic.py">logistic.py</a> script, I have implemented a few classes to perform logistic regression on a data set.</p>
+<p>In my <a href="https://github.com/evanflaks/evanflaks.github.io/blob/main/posts/logistic/logistic.py">logistic.py</a> script, I have implemented a few classes to perform logistic regression on a data set.</p>
 <p>The <code>LinearModel</code> class provides the foundation for linear models by maintaining a weight vector <span class="math inline">\(w\)</span> and defining core functionality to compute scores and predictions. The <code>score</code> method calculates the raw output (dot product) for each data point in the feature matrix <span class="math inline">\(X\)</span> by multiplying it with the model’s weight vector <span class="math inline">\(w\)</span>. If <span class="math inline">\(w\)</span> has not been initialized yet, it randomly initializes it to a vector of the correct shape. The <code>predict</code> method then uses these scores to produce binary predictions by thresholding the score at zero; any value greater than zero becomes a <code>1.0</code> , otherwise <code>0.0</code>.</p>
 <p>The <code>LogisticRegression</code> class inherits from <code>LinearModel</code> and implements functionality specific to binary classification using the logistic loss. It introduces a loss method that calculates the average logistic loss over the dataset by applying the sigmoid function to the model’s scores to obtain probabilities, and then computing the cross-entropy loss with the true labels y. The <code>grad</code> method computes the gradient of this loss with respect to the weight vector <span class="math inline">\(w\)</span>, which is necessary for optimization. It does this by taking the derivative of the loss function, resulting in the formula <span class="math display">\[\frac{1}{n} \cdot X^{T} @ (\sigma(a)-y)\]</span> Where <span class="math inline">\(\sigma(s)\)</span> is the vector of predicted probabilities. These methods enable learning the optimal weights for classification tasks through gradient-based updates.</p>
 <p>The <code>GradientDescentOptimizer</code> class is responsible for updating the model’s weights using gradient descent with momentum. Initialized with a reference to a model (e.g., <code>LogisticRegression</code>), it keeps track of the previous weight vector to compute the momentum term. The <code>step</code> method performs a single optimization step using the formula <span class="math display">\[w_{k+1} = w_k - \alpha \cdot \nabla L(w_k) + \beta(w_k -w_{k-1})\]</span> Where <span class="math inline">\(\alpha\)</span> is the learning rate and <span class="math inline">\(\beta\)</span> is the momentum coefficient. If it’s the first step, the previous weight vector is simply initialized to the current weights. The momentum term helps smooth out updates and can accelerate convergence, especially in cases where the loss surface has narrow valleys or noisy gradients.</p>
@@ -265,7 +265,7 @@ window.Quarto = {
 <p>The <code>run_experiment</code> function runs a logistic regression training loop using gradient descent with a specified learning rate (<code>alpha</code>) and momentum parameter (<code>beta</code>) for a set number of <code>iterations</code>. It initializes a <code>LogisticRegression</code> model and a <code>GradientDescentOptimizer</code>. During each iteration, the function computes the current loss and performs a gradient descent step using the specified parameters. The loss at each iteration is stored in a list, allowing for later analysis of convergence behavior. It returns both the loss history and the trained model.</p>
 <p>The <code>plot_decision_boundary</code> function visualizes the decision boundary learned by a trained logistic regression model over a 2D feature space. It first defines a grid of (x, y) coordinates that spans the input data range and constructs a feature matrix that includes a bias term. It then uses the model to compute sigmoid probabilities over this grid and reshapes the results for contour plotting. The function plots a contour at the decision threshold (probability = 0.5), which represents the decision boundary. It overlays this boundary on a scatter plot of the original dataset, clearly showing how well the model separates the two classes.</p>
 <p>The <code>plot_loss_curve</code> function plots the progression of logistic loss values recorded during the training process. It takes a list of loss values (one per iteration) and creates a line plot with iteration number on the x-axis and logistic loss on the y-axis. The resulting graph helps visualize whether the loss is decreasing consistently—a key indicator of successful convergence during training. A smooth, monotonically decreasing curve suggests that the gradient descent algorithm is working correctly.</p>
-<div id="cell-5" class="cell" data-execution_count="134">
+<div id="cell-5" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_experiment(X, y, beta, alpha, iterations):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Run gradient descent on the provided classification data for a given beta (momentum)</span></span>
@@ -333,7 +333,7 @@ window.Quarto = {
 <section id="experiment-1-vanilla-gradient-descent-beta0" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-vanilla-gradient-descent-beta0">Experiment 1: Vanilla Gradient Descent (<span class="math inline">\(\beta=0\)</span>)</h3>
 <p>First let’s create some sample data to work with by running the following code</p>
-<div id="cell-8" class="cell" data-execution_count="135">
+<div id="cell-8" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classification_data(n_points <span class="op">=</span> <span class="dv">300</span>, noise <span class="op">=</span> <span class="fl">0.2</span>, p_dims <span class="op">=</span> <span class="dv">2</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> torch.arange(n_points) <span class="op">&gt;=</span> <span class="bu">int</span>(n_points<span class="op">/</span><span class="dv">2</span>)</span>
@@ -346,8 +346,8 @@ window.Quarto = {
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> classification_data(noise <span class="op">=</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we want to run a gradient descent for logistic regression with <span class="math inline">\(\alpha=0.1\)</span> and <span class="math inline">\(\beta=0\)</span>, i.e no momentum. The code below runs my <code>run_experiment</code> function with those values and the above synthetic data, plotting the decision boundary for classification after training and the loss over the course of iterations.</p>
-<div id="cell-10" class="cell" data-execution_count="136">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>iterations <span class="op">=</span> <span class="dv">100</span></span>
+<div id="cell-10" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>iterations <span class="op">=</span> <span class="dv">1000</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.1</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Vanilla GD (β = 0)</span></span>
@@ -375,8 +375,8 @@ window.Quarto = {
 <section id="experiment-2-gradient-descent-with-momentum-beta-0.9" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-gradient-descent-with-momentum-beta-0.9">Experiment 2: Gradient Descent with Momentum (<span class="math inline">\(\beta = 0.9\)</span>)</h3>
 <p>Now we want to use the same data set as we did in the first experiment, but this time we will implement momentum, setting <span class="math inline">\(\beta=0.9\)</span>. The code below runs the experiemnt on the same data but with <span class="math inline">\(\beta=0.9\)</span> and <span class="math inline">\(\alpha=0.1\)</span> still.</p>
-<div id="cell-14" class="cell" data-execution_count="137">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>iterations <span class="op">=</span> <span class="dv">100</span></span>
+<div id="cell-14" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>iterations <span class="op">=</span> <span class="dv">1000</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.1</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradient Descent with momentum (β = 0.9)</span></span>
@@ -405,7 +405,7 @@ window.Quarto = {
 <section id="experiment-3-overfitting" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-3-overfitting">Experiment 3: Overfitting</h3>
 <p>Now we want to test Linear Regression on data with more than two dimensions. The code below generates and trains a logistic regression model on synthetic high-dimensional data using vanilla gradient descent. The generate_high_dim_data function creates a dataset with 50 data points (n_points) and 100 features (p_dim). Each data point has p_dim - 1 features sampled from a standard normal distribution, and a final feature of constant ones is appended as a bias term. Labels (y) are randomly assigned as 0 or 1 with equal probability. Two separate datasets are generated: one for training and one for testing. A logistic regression model is then trained on the training data using a custom GradientDescentOptimizer, which performs 200 iterations of optimization with a learning rate (alpha) of 0.1 and no momentum (beta = 0.0). During training, the loss is recorded at each iteration. Finally, the model’s predictions are evaluated on both the training and test sets, and the corresponding accuracies are printed.</p>
-<div id="cell-17" class="cell" data-execution_count="140">
+<div id="cell-17" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_high_dim_data(n_points<span class="op">=</span><span class="dv">50</span>, p_dim<span class="op">=</span><span class="dv">100</span>):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Generates a dataset with n_points data and p_dim features.</span></span>
@@ -450,22 +450,22 @@ window.Quarto = {
 <span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Test Accuracy: </span><span class="sc">{:.2f}</span><span class="st">%"</span>.<span class="bu">format</span>(test_accuracy <span class="op">*</span> <span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Training Accuracy: 100.00%
-Test Accuracy: 46.00%</code></pre>
+Test Accuracy: 48.00%</code></pre>
 </div>
 </div>
-<p>As we can see, while the Logistic Regression classified the data with 100% accuracy on the training set, it only performed with 46% accuracy on the test set. This suggests that the model has overfit the training data—essentially memorizing the patterns in the training set rather than learning generalizable features. Since the dataset is high-dimensional (with 100 features and only 50 data points), the model has enough flexibility to perfectly separate the training points. However, this does not translate to good performance on unseen data, which explains the low accuracy on the test set.</p>
+<p>As we can see, while the Logistic Regression classified the data with 100% accuracy on the training set, it only performed with 48% accuracy on the test set. This suggests that the model has overfit the training data—essentially memorizing the patterns in the training set rather than learning generalizable features. Since the dataset is high-dimensional (with 100 features and only 50 data points), the model has enough flexibility to perfectly separate the training points. However, this does not translate to good performance on unseen data, which explains the low accuracy on the test set.</p>
 </section>
 <section id="experiment-4-performance-on-empirical-data" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-4-performance-on-empirical-data">Experiment 4: Performance on Empirical Data</h3>
 <p>Now we want to test our implementation of Logistic Algorithm on real-world, empirical data. From Kaggle, I found a data set on diabetes on other physical metrics created by <a href="https://x.com/geeksforgeeks?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor">GeeksForGeeks</a>. The link to the data set can be found <a href="https://www.kaggle.com/datasets/krishu22/diabetes-dataset">here</a>. The dataset includes key metrics necessary for predictins diabetes such as age, glucose levels, insulin, BMI, etc.</p>
 <p>My goal is train a Logistic Regression model to predict/classify whether a student passed or failed their final exam based on the academic data.</p>
 <p>I downloaded the data as a .csv file, now I must read it into a data frame.</p>
-<div id="cell-20" class="cell" data-execution_count="188">
+<div id="cell-20" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'/Users/evanflaks/Downloads/diabetes-dataset.csv'</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="188">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 
 
@@ -552,7 +552,7 @@ Test Accuracy: 46.00%</code></pre>
 </div>
 </div>
 <p>Now we prepare our dataset for logistic regression. First, it separates the feature matrix X from the binary target variable y (which indicates whether a person has diabetes). It then standardizes the features using StandardScaler to ensure each has a mean of 0 and standard deviation of 1, which helps the model train more effectively. A column of ones is appended to the feature matrix to act as a bias (intercept) term. Finally, both the feature matrix and target vector are converted into PyTorch tensors to be used in training a logistic regression model.</p>
-<div id="cell-22" class="cell" data-execution_count="189">
+<div id="cell-22" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -574,7 +574,7 @@ Test Accuracy: 46.00%</code></pre>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>y_tensor <span class="op">=</span> torch.tensor(y.values, dtype<span class="op">=</span>torch.float32)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we split our data into training, validation, and testing sets, with a 60%, 20%, and 20% split.</p>
-<div id="cell-24" class="cell" data-execution_count="190">
+<div id="cell-24" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First: split into 80% train_val and 20% test</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>X_temp, X_test, y_temp, y_test <span class="op">=</span> train_test_split(X_tensor, y_tensor, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -582,7 +582,7 @@ Test Accuracy: 46.00%</code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>X_train, X_val, y_train, y_val <span class="op">=</span> train_test_split(X_temp, y_temp, test_size<span class="op">=</span><span class="fl">0.25</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This function trains a logistic regression model using gradient descent with optional momentum. It takes the model, optimizer, training and validation data, and hyperparameters like the number of iterations <code>(n_iter)</code>, learning rate <code>(alpha)</code>, and momentum <code>(beta)</code>. Before training begins, it calls model.score(X_train) to ensure the model’s weights are initialized. In each iteration of training, the optimizer updates the model weights, and the function records the loss on both the training and validation sets. After all iterations, it returns two lists containing the training and validation losses over time, which will be used to visualize the model’s learning progress.</p>
-<div id="cell-26" class="cell" data-execution_count="191">
+<div id="cell-26" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model, optimizer, X_train, y_train, X_val, y_val, n_iter<span class="op">=</span><span class="dv">100</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.0</span>):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    train_losses <span class="op">=</span> []</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    val_losses <span class="op">=</span> []</span>
@@ -600,7 +600,7 @@ Test Accuracy: 46.00%</code></pre>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> train_losses, val_losses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The code below trains two logistic regression models—one using standard gradient descent and the other using gradient descent with momentum—and compares their performance by plotting the training and validation loss over 100 iterations. It first initializes and trains model1 without momentum (<span class="math inline">\(\beta = 0.0\)</span>), then initializes and trains model2 with momentum (<span class="math inline">\(\beta = 0.9\)</span>). The recorded loss values for both models are plotted using Matplotlib.</p>
-<div id="cell-28" class="cell" data-execution_count="192">
+<div id="cell-28" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Without momentum</span></span>
@@ -633,7 +633,7 @@ Test Accuracy: 46.00%</code></pre>
 </div>
 </div>
 <p>Similar to our earlier experiment, in both the validation and training sets, loss monotonically decreases over the course of iterations. For both sets, the decrease is more rapid with Momentum, leveling out earlier. Without momentum, loss decreases more gradually but eventually reaches similar loss levels as the models with momentum.</p>
-<div id="cell-30" class="cell" data-execution_count="187">
+<div id="cell-30" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> accuracy(model, X, y):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    preds <span class="op">=</span> model.predict(X)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (preds <span class="op">==</span> y).<span class="bu">float</span>().mean().item()</span>
@@ -644,11 +644,11 @@ Test Accuracy: 46.00%</code></pre>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test Loss: </span><span class="sc">{</span>final_test_loss<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test Accuracy: </span><span class="sc">{</span>final_test_accuracy<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test Loss: 0.5297
+<pre><code>Test Loss: 0.5299
 Test Accuracy: 72.73%</code></pre>
 </div>
 </div>
-<p>Our logistic regression model found a final loss of 0.5297 and an accuracy of 72.73% on the data test set.</p>
+<p>Our logistic regression model found a final loss of 0.5299 and an accuracy of 72.73% on the data test set.</p>
 </section>
 </section>
 <section id="conclusion" class="level1">
