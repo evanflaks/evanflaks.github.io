@@ -88,11 +88,11 @@ class LogisticRegression(LinearModel):
         RETURNS:
             H, torch.Tensor: Hessian matrix of shape (p, p)
         """
-        s = self.score(X)                  # Compute the score vector (n,)
-        sigma = torch.sigmoid(s)          # Compute sigmoid for each score
-        d = sigma * (1 - sigma)           # Compute the diagonal entries of D
-        D = torch.diag(d)                 # Create diagonal matrix D (n x n)
-        H = X.T @ D @ X / X.size(0)       # Compute Hessian using matrix multiplication
+        s     = X @ self.w                   # (n,)
+        sigma = torch.sigmoid(s)             # (n,)
+        d     = sigma * (1 - sigma)          # (n,)
+        Xd    = X * d.unsqueeze(1)           # (n, p) * (n,1) → (n, p)
+        return (Xd.T @ X) / X.size(0)        # (p, p)      # Compute Hessian using matrix multiplication
 
         return H
 
@@ -156,6 +156,9 @@ class GradientDescentOptimizer:
             alpha, float: Learning rate.
             beta, float: Momentum parameter.
         """
+        if self.model.w is None:
+            _ = self.model.score(X)  # Triggers lazy initialization
+
         # Get the current weight vector from the model.
         current_w = self.model.w
 
@@ -177,3 +180,104 @@ class GradientDescentOptimizer:
 
         # Update the stored previous weight vector for the next iteration.
         self.prev_w = current_w.clone()
+
+class NewtonOptimizer:
+    def __init__(self, model):
+        """
+        Initialize the Newton optimizer.
+
+        ARGUMENTS:
+            model: An instance of LogisticRegression, with defined methods:
+                   - model.w: current weights
+                   - model.grad(X, y): returns ∇L(w)
+                   - model.hessian(X, y): returns H(w)
+        """
+        self.model = model
+
+    def step(self, X, y, alpha=1.0):
+        """
+        Perform one Newton update step:
+            w <- w - α * H(w)^(-1) ∇L(w)
+
+        ARGUMENTS:
+            X, torch.Tensor: Feature matrix (n, p)
+            y, torch.Tensor: Label vector (n,)
+            alpha, float: Learning rate (default is 1.0)
+        """
+        grad = self.model.grad(X, y)             # ∇L(w)
+        hess = self.model.hessian(X, y)          # H(w)
+
+        # Add small value to the diagonal for numerical stability 
+        eps = 1e-5
+        hess_reg = hess + eps * torch.eye(hess.size(0))
+
+        # Compute Newton step: H⁻¹ ∇L(w)
+        step = torch.linalg.solve(hess_reg, grad)
+
+        # Update weights
+        self.model.w = self.model.w - alpha * step
+
+class AdamOptimizer:
+    def __init__(self, model, batch_size=32, alpha=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, w_0=None):
+        """
+        Initialize the Adam optimizer.
+
+        ARGUMENTS:
+            model: The logistic regression model to be optimized.
+            batch_size: Size of the mini-batch for gradient updates.
+            alpha: Learning rate.
+            beta1: Decay rate for first moment estimate.
+            beta2: Decay rate for second moment estimate.
+            epsilon: Small constant to avoid division by zero.
+            w_0: Optional initial weight vector.
+        """
+        self.model = model
+        self.batch_size = batch_size
+        self.alpha = alpha
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.epsilon = epsilon
+
+        if w_0 is not None:
+            self.model.w = w_0.clone()
+        self.m = None  # First moment vector
+        self.v = None  # Second moment vector
+        self.t = 0     # Timestep
+
+    def step(self, X, y):
+        """
+        Perform one epoch of Adam optimization using mini-batch updates.
+
+        ARGUMENTS:
+            X: Feature matrix (torch.Tensor).
+            y: Target vector (torch.Tensor).
+        """
+        if self.model.w is None:
+            _ = self.model.score(X)  # Initialize weights
+
+        n = X.size(0)
+        indices = torch.randperm(n)  # Shuffle the data
+
+        for i in range(0, n, self.batch_size):
+            self.t += 1
+            batch_idx = indices[i:i + self.batch_size]
+            X_batch = X[batch_idx]
+            y_batch = y[batch_idx]
+
+            grad = self.model.grad(X_batch, y_batch)
+
+            if self.m is None:
+                self.m = torch.zeros_like(self.model.w)
+            if self.v is None:
+                self.v = torch.zeros_like(self.model.w)
+
+            # Update moment estimates
+            self.m = self.beta1 * self.m + (1 - self.beta1) * grad
+            self.v = self.beta2 * self.v + (1 - self.beta2) * (grad ** 2)
+
+            # Bias correction
+            m_hat = self.m / (1 - self.beta1 ** self.t)
+            v_hat = self.v / (1 - self.beta2 ** self.t)
+
+            # Parameter update
+            self.model.w = self.model.w - self.alpha * m_hat / (torch.sqrt(v_hat) + self.epsilon)

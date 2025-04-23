@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/newton/index.html",
       "/posts/kernel/index.html",
       "/posts/logistic/index.html",
       "/posts/perceptron/index.html",
